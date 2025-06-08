@@ -1,9 +1,8 @@
 <?php
 
-namespace ONVO\Models;
+namespace ONVO\Models\PaymentMethod;
 
 use DateTime;
-use ONVO\Models\Address;
 
 class PaymentMethod
 {
@@ -43,6 +42,34 @@ class PaymentMethod
         $this->status = $status;
         $this->type = $type;
         $this->updatedAt = $updatedAt ?? new DateTime();
+    }
+
+    public function toUpdateJson(): string
+    {
+        return json_encode($this->toUpdateArray());
+    }
+
+    public function toUpdateArray(): array
+    {
+        $data = [];
+
+        // Solo incluir los campos que se pueden actualizar según el esquema
+        if ($this->billing !== null) {
+            $data['billing'] = [
+                'address' => $this->billing->address->toArray(),
+                'name' => $this->billing->name,
+                'phone' => $this->billing->phone
+            ];
+        }
+
+        // Solo incluir el objeto correspondiente al tipo de método de pago
+        if ($this->type === 'card' && $this->card !== null && $this->card->cvv !== null) {
+            $data['card'] = [
+                'cvv' => $this->card->cvv
+            ];
+        }
+
+        return $data;
     }
 
     public function toJson(bool $newPaymentMethod = false): string
@@ -100,138 +127,6 @@ class PaymentMethod
             'status' => $this->status,
             'type' => $this->type,
             'updatedAt' => $this->updatedAt->format(DateTime::ATOM),
-        ];
-    }
-}
-
-class Billing
-{
-    public Address $address;
-    public string $name;
-    public ?string $phone;
-    public ?string $email;
-    public ?string $idType;
-    public ?string $idNumber;
-
-    public function __construct(
-        Address $address,
-        string $name,
-        ?string $phone = null,
-        ?string $email = null,
-        ?string $idType = null,
-        ?string $idNumber = null
-    ) {
-        $this->address = $address;
-        $this->name = $name;
-        $this->phone = $phone;
-        $this->email = $email;
-        $this->idType = $idType;
-        $this->idNumber = $idNumber;
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'address' => $this->address->toArray(),
-            'name' => $this->name,
-            'phone' => $this->phone,
-            'email' => $this->email,
-            'idType' => $this->idType,
-            'idNumber' => $this->idNumber,
-        ];
-    }
-}
-
-class Card
-{
-    public string $brand; // Enum: "visa" | "mastercard"
-    public int $expMonth;
-    public int $expYear;
-    public string $last4;
-
-    public function __construct(
-        string $brand,
-        int $expMonth,
-        int $expYear,
-        string $last4
-    ) {
-        $this->brand = $brand;
-        $this->expMonth = $expMonth;
-        $this->expYear = $expYear;
-        $this->last4 = $last4;
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'brand' => $this->brand,
-            'expMonth' => $this->expMonth,
-            'expYear' => $this->expYear,
-            'last4' => $this->last4,
-        ];
-    }
-}
-
-class MobileNumber
-{
-    public string $maskedNumber;
-    public ?string $identification;
-    public ?int $identificationType;
-    public ?string $number;
-
-    public function __construct(
-        string $maskedNumber = '',
-        ?string $identification = null,
-        ?int $identificationType = null,
-        ?string $number = null
-    ) {
-        $this->maskedNumber = $maskedNumber;
-        $this->identification = $identification;
-        $this->identificationType = $identificationType;
-        $this->number = $number;
-    }
-
-    public function toArray(): array
-    {
-        $data = [
-            'maskedNumber' => $this->maskedNumber,
-        ];
-
-        // Para crear un nuevo método de pago tipo mobile_number
-        if ($this->identification !== null) {
-            $data['identification'] = $this->identification;
-        }
-
-        if ($this->identificationType !== null) {
-            $data['identificationType'] = $this->identificationType;
-        }
-
-        if ($this->number !== null) {
-            $data['number'] = $this->number;
-        }
-
-        return $data;
-    }
-}
-
-class Zunify
-{
-    public string $pin;
-    public string $phoneNumber;
-
-    public function __construct(
-        string $pin,
-        string $phoneNumber
-    ) {
-        $this->pin = $pin;
-        $this->phoneNumber = $phoneNumber;
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'pin' => $this->pin,
-            'phoneNumber' => $this->phoneNumber,
         ];
     }
 }
