@@ -11,6 +11,7 @@ use ONVO\Services\PricesService;
 use ONVO\Services\RefundsService;
 use ONVO\Services\ShippingRatesService;
 use ONVO\Services\SubscriptionsService;
+use ONVO\Services\WebhookService;
 
 class ONVOClient
 {
@@ -58,6 +59,11 @@ class ONVOClient
      * @var SubscriptionsService
      */
     private ?SubscriptionsService $subscriptions = null;
+
+    /**
+     * @var WebhookService
+     */
+    private ?WebhookService $webhook = null;
     
     /**
      * Initialize the ONVO Pay SDK client
@@ -68,6 +74,20 @@ class ONVOClient
     public function __construct(string $apiKey, string $baseUrl = 'https://api.onvopay.com/v1')
     {
         $this->httpClient = new Client($apiKey, $baseUrl);
+    }
+
+    /**
+     * Get the webhook service
+     *
+     * @return WebhookService
+     */
+    public function webhookHandler(): WebhookService
+    {
+        if ($this->webhook === null) {
+            $this->webhook = new WebhookService();
+        }
+        
+        return $this->webhook;
     }
     
     /**
