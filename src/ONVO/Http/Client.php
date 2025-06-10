@@ -1,7 +1,7 @@
 <?php
 namespace ONVO\Http;
 
-use ONVO\Exceptions\ApiException;
+use ONVO\Exceptions\OnvoException;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ConnectException;
@@ -37,6 +37,7 @@ class Client
      * @param array $params The query parameters.
      * @param bool $usePagination Whether to use pagination.
      * @return array The response data.
+     * @throws OnvoException
      */
     public function get($endpoint, array $params = [], $usePagination = false)
     {
@@ -62,6 +63,7 @@ class Client
      * @param string $endpoint The API endpoint.
      * @param array $data The request data.
      * @return array The response data.
+     * @throws OnvoException
      */
     public function post($endpoint, array $data = [])
     {
@@ -82,6 +84,7 @@ class Client
      *
      * @param string $endpoint The API endpoint.
      * @return array The response data.
+     * @throws OnvoException
      */
     public function delete($endpoint)
     {
@@ -145,12 +148,18 @@ class Client
      *
      * @param \Psr\Http\Message\ResponseInterface $response The response.
      * @return array The response data.
+     * @throws OnvoException
      */
     private function handleResponse($response)
     {
         $body = (string) $response->getBody();
         if (!$this->isJson($body)) {
-            throw new ApiException('Invalid JSON response from API', $response->getStatusCode());
+            throw new OnvoException(
+                $response->getStatusCode(),
+                null,
+                ['Invalid JSON response from API'],
+                'Invalid Response'
+            );
         }
     
         return json_decode($body, true);
@@ -160,15 +169,18 @@ class Client
      * Handle exceptions from Guzzle.
      *
      * @param \GuzzleHttp\Exception\GuzzleException $e The exception.
-     * @return ApiException The API exception.
+     * @return OnvoException The ONVO exception.
      */
     private function handleException(GuzzleException $e)
     {
         $statusCode = 0;
-        $message = 'Unexpected error';
+        $messages = ['Unexpected error'];
+        $apiCode = null;
+        $error = 'Unknown Error';
     
         if ($e instanceof ConnectException) {
-            $message = 'Connection failed: ' . $e->getMessage();
+            $messages = ['Connection failed: ' . $e->getMessage()];
+            $error = 'Connection Error';
             $statusCode = 0; // network-level error
         } elseif ($e instanceof ClientException || $e instanceof ServerException) {
             $response = $e->getResponse();
@@ -177,19 +189,57 @@ class Client
         
             if ($body && $this->isJson($body)) {
                 $data = json_decode($body, true);
-                $message = $data['message'][0] ?? $data['message'] ?? $e->getMessage();
+                
+                // Extraer información del error según la estructura de ONVO
+                if (isset($data['message'])) {
+                    $messages = is_array($data['message']) ? $data['message'] : [$data['message']];
+                } else {
+                    $messages = [$e->getMessage()];
+                }
+                
+                $apiCode = $data['apiCode'] ?? null;
+                $error = $data['error'] ?? $this->getHttpErrorName($statusCode);
             } else {
-                $message = $e->getMessage();
+                $messages = [$e->getMessage()];
+                $error = $this->getHttpErrorName($statusCode);
             }
         } elseif ($e instanceof RequestException) {
             $response = $e->getResponse();
             $statusCode = $response ? $response->getStatusCode() : 0;
-            $message = $e->getMessage();
+            $messages = [$e->getMessage()];
+            $error = $this->getHttpErrorName($statusCode);
         } else {
-            $message = $e->getMessage();
+            $messages = [$e->getMessage()];
         }
     
-        return new ApiException($message, $statusCode);
+        return new OnvoException($statusCode, $apiCode, $messages, $error);
+    }
+    
+    /**
+     * Get HTTP error name based on status code.
+     *
+     * @param int $statusCode
+     * @return string
+     */
+    private function getHttpErrorName($statusCode)
+    {
+        $errorNames = [
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            405 => 'Method Not Allowed',
+            409 => 'Conflict',
+            422 => 'Unprocessable Entity',
+            429 => 'Too Many Requests',
+            500 => 'Internal Server Error',
+            502 => 'Bad Gateway',
+            503 => 'Service Unavailable',
+            504 => 'Gateway Timeout',
+        ];
+        
+        return $errorNames[$statusCode] ?? 'HTTP Error';
     }
     
     private function isJson($string)

@@ -5,6 +5,7 @@ namespace ONVO\Services;
 use ONVO\Http\Client;
 use ONVO\Models\ShippingRate;
 use ONVO\Models\DeliveryEstimate;
+use ONVO\Exceptions\OnvoException;
 
 class ShippingRatesService
 {
@@ -20,12 +21,16 @@ class ShippingRatesService
      *
      * @param array $data Shipping rate creation parameters
      * @return ShippingRate
+     * @throws OnvoException
      */
     public function create(array $data): ShippingRate
     {
-        $response = $this->client->post('/shipping-rates', $data);
-        
-        return $this->mapResponseToShippingRate($response);
+        try {
+            $response = $this->client->post('/shipping-rates', $data);
+            return $this->mapResponseToShippingRate($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -33,21 +38,26 @@ class ShippingRatesService
      *
      * @param array|null $params Optional parameters for filtering
      * @return array Array containing list of shipping rates and pagination metadata
+     * @throws OnvoException
      */
     public function list(?array $params = []): array
     {
-        $response = $this->client->get('/shipping-rates', $params, true);
-        
-        $shippingRates = [];
-        foreach ($response['data'] as $shippingRateData) {
-            $shippingRates[] = $this->mapResponseToShippingRate($shippingRateData);
+        try {
+            $response = $this->client->get('/shipping-rates', $params, true);
+            
+            $shippingRates = [];
+            foreach ($response['data'] as $shippingRateData) {
+                $shippingRates[] = $this->mapResponseToShippingRate($shippingRateData);
+            }
+            
+            return [
+                'data' => $shippingRates,
+                'hasMore' => $response['hasMore'] ?? false,
+                'totalCount' => $response['totalCount'] ?? count($shippingRates),
+            ];
+        } catch (OnvoException $e) {
+            throw $e;
         }
-        
-        return [
-            'data' => $shippingRates,
-            'hasMore' => $response['hasMore'] ?? false,
-            'totalCount' => $response['totalCount'] ?? count($shippingRates),
-        ];
     }
 
     /**
@@ -55,12 +65,16 @@ class ShippingRatesService
      *
      * @param string $id Shipping rate ID
      * @return ShippingRate
+     * @throws OnvoException
      */
     public function retrieve(string $id): ShippingRate
     {
-        $response = $this->client->get("/shipping-rates/{$id}");
-        
-        return $this->mapResponseToShippingRate($response);
+        try {
+            $response = $this->client->get("/shipping-rates/{$id}");
+            return $this->mapResponseToShippingRate($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -69,12 +83,16 @@ class ShippingRatesService
      * @param string $id Shipping rate ID
      * @param array $data Shipping rate update parameters
      * @return ShippingRate
+     * @throws OnvoException
      */
     public function update(string $id, array $data): ShippingRate
     {
-        $response = $this->client->post("/shipping-rates/{$id}", $data);
-        
-        return $this->mapResponseToShippingRate($response);
+        try {
+            $response = $this->client->post("/shipping-rates/{$id}", $data);
+            return $this->mapResponseToShippingRate($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -82,10 +100,15 @@ class ShippingRatesService
      *
      * @param string $id Shipping rate ID
      * @return array Deleted shipping rate response
+     * @throws OnvoException
      */
     public function delete(string $id): array
     {
-        return $this->client->delete("/shipping-rates/{$id}");
+        try {
+            return $this->client->delete("/shipping-rates/{$id}");
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**

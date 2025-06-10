@@ -8,6 +8,7 @@ use ONVO\Models\PaymentError;
 use ONVO\Models\Charge;
 use ONVO\Models\NextAction;
 use ONVO\Models\RedirectToUrl;
+use ONVO\Exceptions\OnvoException;
 
 class PaymentIntentsService
 {
@@ -23,12 +24,16 @@ class PaymentIntentsService
      *
      * @param array $data Payment intent creation parameters
      * @return PaymentIntent
+     * @throws OnvoException
      */
     public function create(array $data): PaymentIntent
     {
-        $response = $this->client->post('/payment-intents', $data);
-        
-        return $this->mapResponseToPaymentIntent($response);
+        try {
+            $response = $this->client->post('/payment-intents', $data);
+            return $this->mapResponseToPaymentIntent($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -36,21 +41,26 @@ class PaymentIntentsService
      *
      * @param array|null $params Optional parameters for filtering
      * @return array Array containing list of payment intents and pagination metadata
+     * @throws OnvoException
      */
     public function list(?array $params = []): array
     {
-        $response = $this->client->get('/payment-intents', $params, true);
-        
-        $paymentIntents = [];
-        foreach ($response['data'] as $paymentIntentData) {
-            $paymentIntents[] = $this->mapResponseToPaymentIntent($paymentIntentData);
+        try {
+            $response = $this->client->get('/payment-intents', $params, true);
+            
+            $paymentIntents = [];
+            foreach ($response['data'] as $paymentIntentData) {
+                $paymentIntents[] = $this->mapResponseToPaymentIntent($paymentIntentData);
+            }
+            
+            return [
+                'data' => $paymentIntents,
+                'hasMore' => $response['hasMore'] ?? false,
+                'totalCount' => $response['totalCount'] ?? count($paymentIntents),
+            ];
+        } catch (OnvoException $e) {
+            throw $e;
         }
-        
-        return [
-            'data' => $paymentIntents,
-            'hasMore' => $response['hasMore'] ?? false,
-            'totalCount' => $response['totalCount'] ?? count($paymentIntents),
-        ];
     }
 
     /**
@@ -58,12 +68,16 @@ class PaymentIntentsService
      *
      * @param string $id Payment intent ID
      * @return PaymentIntent
+     * @throws OnvoException
      */
     public function retrieve(string $id): PaymentIntent
     {
-        $response = $this->client->get("/payment-intents/{$id}");
-        
-        return $this->mapResponseToPaymentIntent($response);
+        try {
+            $response = $this->client->get("/payment-intents/{$id}");
+            return $this->mapResponseToPaymentIntent($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -72,12 +86,16 @@ class PaymentIntentsService
      * @param string $id Payment intent ID
      * @param array|null $params Optional parameters for confirmation
      * @return PaymentIntent
+     * @throws OnvoException
      */
     public function confirm(string $id, ?array $params = []): PaymentIntent
     {
-        $response = $this->client->post("/payment-intents/{$id}/confirm", $params);
-        
-        return $this->mapResponseToPaymentIntent($response);
+        try {
+            $response = $this->client->post("/payment-intents/{$id}/confirm", $params);
+            return $this->mapResponseToPaymentIntent($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -86,12 +104,16 @@ class PaymentIntentsService
      * @param string $id Payment intent ID
      * @param array|null $params Optional parameters for capture
      * @return PaymentIntent
+     * @throws OnvoException
      */
     public function capture(string $id, ?array $params = []): PaymentIntent
     {
-        $response = $this->client->post("/payment-intents/{$id}/capture", $params);
-        
-        return $this->mapResponseToPaymentIntent($response);
+        try {
+            $response = $this->client->post("/payment-intents/{$id}/capture", $params);
+            return $this->mapResponseToPaymentIntent($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -100,12 +122,16 @@ class PaymentIntentsService
      * @param string $id Payment intent ID
      * @param array|null $params Optional parameters for cancellation
      * @return PaymentIntent
+     * @throws OnvoException
      */
     public function cancel(string $id, ?array $params = []): PaymentIntent
     {
-        $response = $this->client->post("/payment-intents/{$id}/cancel", $params);
-        
-        return $this->mapResponseToPaymentIntent($response);
+        try {
+            $response = $this->client->post("/payment-intents/{$id}/cancel", $params);
+            return $this->mapResponseToPaymentIntent($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**

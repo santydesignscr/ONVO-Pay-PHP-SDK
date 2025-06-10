@@ -3,8 +3,9 @@
 namespace ONVO\Services;
 
 use ONVO\Http\Client;
-use App\Models\Product\Price;
-use App\Models\Product\Recurring;
+use ONVO\Models\Product\Price;
+use ONVO\Models\Product\Recurring;
+use ONVO\Exceptions\OnvoException;
 
 class PricesService
 {
@@ -20,12 +21,16 @@ class PricesService
      *
      * @param array $data Price creation parameters
      * @return Price
+     * @throws OnvoException
      */
     public function create(array $data): Price
     {
-        $response = $this->client->post('/prices', $data);
-        
-        return $this->mapResponseToPrice($response);
+        try {
+            $response = $this->client->post('/prices', $data);
+            return $this->mapResponseToPrice($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -33,21 +38,26 @@ class PricesService
      *
      * @param array|null $params Optional parameters for filtering
      * @return array Array containing list of prices and pagination metadata
+     * @throws OnvoException
      */
     public function list(?array $params = []): array
     {
-        $response = $this->client->get('/prices', $params, true);
-        
-        $prices = [];
-        foreach ($response['data'] as $priceData) {
-            $prices[] = $this->mapResponseToPrice($priceData);
+        try {
+            $response = $this->client->get('/prices', $params, true);
+            
+            $prices = [];
+            foreach ($response['data'] as $priceData) {
+                $prices[] = $this->mapResponseToPrice($priceData);
+            }
+            
+            return [
+                'data' => $prices,
+                'hasMore' => $response['hasMore'] ?? false,
+                'totalCount' => $response['totalCount'] ?? count($prices),
+            ];
+        } catch (OnvoException $e) {
+            throw $e;
         }
-        
-        return [
-            'data' => $prices,
-            'hasMore' => $response['hasMore'] ?? false,
-            'totalCount' => $response['totalCount'] ?? count($prices),
-        ];
     }
 
     /**
@@ -55,12 +65,16 @@ class PricesService
      *
      * @param string $id Price ID
      * @return Price
+     * @throws OnvoException
      */
     public function retrieve(string $id): Price
     {
-        $response = $this->client->get("/prices/{$id}");
-        
-        return $this->mapResponseToPrice($response);
+        try {
+            $response = $this->client->get("/prices/{$id}");
+            return $this->mapResponseToPrice($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -69,12 +83,16 @@ class PricesService
      * @param string $id Price ID
      * @param array $data Price update parameters
      * @return Price
+     * @throws OnvoException
      */
     public function update(string $id, array $data): Price
     {
-        $response = $this->client->post("/prices/{$id}", $data);
-        
-        return $this->mapResponseToPrice($response);
+        try {
+            $response = $this->client->post("/prices/{$id}", $data);
+            return $this->mapResponseToPrice($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**

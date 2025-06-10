@@ -2,9 +2,10 @@
 
 namespace ONVO\Services;
 
-use App\Models\RecurringCharge;
-use App\Models\RecurringItem;
+use ONVO\Models\RecurringCharge;
+use ONVO\Models\RecurringItem;
 use ONVO\Http\Client;
+use ONVO\Exceptions\OnvoException;
 
 class SubscriptionsService
 {
@@ -20,12 +21,16 @@ class SubscriptionsService
      *
      * @param array $data Recurring charge creation parameters
      * @return RecurringCharge
+     * @throws OnvoException
      */
     public function create(array $data): RecurringCharge
     {
-        $response = $this->client->post('/subscriptions', $data);
-        
-        return $this->mapResponseToRecurringCharge($response);
+        try {
+            $response = $this->client->post('/subscriptions', $data);
+            return $this->mapResponseToRecurringCharge($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -33,21 +38,26 @@ class SubscriptionsService
      *
      * @param array|null $params Optional parameters for filtering
      * @return array Array containing list of recurring charges and pagination metadata
+     * @throws OnvoException
      */
     public function list(?array $params = []): array
     {
-        $response = $this->client->get('/subscriptions', $params, true);
-        
-        $recurringCharges = [];
-        foreach ($response['data'] as $chargeData) {
-            $recurringCharges[] = $this->mapResponseToRecurringCharge($chargeData);
+        try {
+            $response = $this->client->get('/subscriptions', $params, true);
+            
+            $recurringCharges = [];
+            foreach ($response['data'] as $chargeData) {
+                $recurringCharges[] = $this->mapResponseToRecurringCharge($chargeData);
+            }
+            
+            return [
+                'data' => $recurringCharges,
+                'hasMore' => $response['hasMore'] ?? false,
+                'totalCount' => $response['totalCount'] ?? count($recurringCharges),
+            ];
+        } catch (OnvoException $e) {
+            throw $e;
         }
-        
-        return [
-            'data' => $recurringCharges,
-            'hasMore' => $response['hasMore'] ?? false,
-            'totalCount' => $response['totalCount'] ?? count($recurringCharges),
-        ];
     }
 
     /**
@@ -55,12 +65,16 @@ class SubscriptionsService
      *
      * @param string $id Recurring charge ID
      * @return RecurringCharge
+     * @throws OnvoException
      */
     public function retrieve(string $id): RecurringCharge
     {
-        $response = $this->client->get("/subscriptions/{$id}");
-        
-        return $this->mapResponseToRecurringCharge($response);
+        try {
+            $response = $this->client->get("/subscriptions/{$id}");
+            return $this->mapResponseToRecurringCharge($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -69,12 +83,16 @@ class SubscriptionsService
      * @param string $id Recurring charge ID
      * @param array $data Recurring charge update parameters
      * @return RecurringCharge
+     * @throws OnvoException
      */
     public function update(string $id, array $data): RecurringCharge
     {
-        $response = $this->client->post("/subscriptions/{$id}", $data);
-        
-        return $this->mapResponseToRecurringCharge($response);
+        try {
+            $response = $this->client->post("/subscriptions/{$id}", $data);
+            return $this->mapResponseToRecurringCharge($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -83,10 +101,15 @@ class SubscriptionsService
      * @param string $id Recurring charge ID
      * @param array|null $params Optional parameters for cancellation
      * @return array Deleted recurring charge response
+     * @throws OnvoException
      */
     public function cancel(string $id, ?array $params = []): array
     {
-        return $this->client->post("/subscriptions/{$id}/cancel", $params);
+        try {
+            return $this->client->post("/subscriptions/{$id}/cancel", $params);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -95,12 +118,16 @@ class SubscriptionsService
      * @param string $id Recurring charge ID
      * @param array|null $params Optional parameters for confirmation
      * @return RecurringCharge
+     * @throws OnvoException
      */
     public function confirm(string $id, ?array $params = []): RecurringCharge
     {
-        $response = $this->client->post("/subscriptions/{$id}/confirm", $params);
-        
-        return $this->mapResponseToRecurringCharge($response);
+        try {
+            $response = $this->client->post("/subscriptions/{$id}/confirm", $params);
+            return $this->mapResponseToRecurringCharge($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -109,12 +136,16 @@ class SubscriptionsService
      * @param string $subscriptionId Recurring charge ID
      * @param array $data Item creation parameters
      * @return RecurringItem
+     * @throws OnvoException
      */
     public function addItem(string $subscriptionId, array $data): RecurringItem
     {
-        $response = $this->client->post("/subscriptions/{$subscriptionId}/items", $data);
-        
-        return $this->mapResponseToRecurringItem($response);
+        try {
+            $response = $this->client->post("/subscriptions/{$subscriptionId}/items", $data);
+            return $this->mapResponseToRecurringItem($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -124,12 +155,16 @@ class SubscriptionsService
      * @param string $itemId Item ID
      * @param array $data Item update parameters
      * @return RecurringItem
+     * @throws OnvoException
      */
     public function updateItem(string $subscriptionId, string $itemId, array $data): RecurringItem
     {
-        $response = $this->client->post("/subscriptions/{$subscriptionId}/items/{$itemId}", $data);
-        
-        return $this->mapResponseToRecurringItem($response);
+        try {
+            $response = $this->client->post("/subscriptions/{$subscriptionId}/items/{$itemId}", $data);
+            return $this->mapResponseToRecurringItem($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -138,10 +173,15 @@ class SubscriptionsService
      * @param string $subscriptionId Recurring charge ID
      * @param string $itemId Item ID
      * @return void
+     * @throws OnvoException
      */
     public function removeItem(string $subscriptionId, string $itemId): void
     {
-        $this->client->delete("/subscriptions/{$subscriptionId}/items/{$itemId}");
+        try {
+            $this->client->delete("/subscriptions/{$subscriptionId}/items/{$itemId}");
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**

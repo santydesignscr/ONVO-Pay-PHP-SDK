@@ -5,6 +5,7 @@ namespace ONVO\Services;
 use ONVO\Http\Client;
 use ONVO\Models\Client as Customer;
 use ONVO\Models\PaymentMethod\PaymentMethod;
+use ONVO\Exceptions\OnvoException;
 
 class CustomersService
 {
@@ -20,13 +21,17 @@ class CustomersService
      *
      * @param array $data Customer creation parameters
      * @return Customer
+     * @throws OnvoException
      */
     public function create(array $data): Customer
     {
-        $response = $this->client->post('/customers', $data);
-        
-        // Crear y retornar una instancia de Customer con los datos de la respuesta
-        return $this->mapResponseToCustomer($response);
+        try {
+            $response = $this->client->post('/customers', $data);
+            return $this->mapResponseToCustomer($response);
+        } catch (OnvoException $e) {
+            // Re-lanzar la excepción con contexto adicional si es necesario
+            throw $e;
+        }
     }
 
     /**
@@ -34,21 +39,26 @@ class CustomersService
      *
      * @param array|null $params Optional parameters for filtering
      * @return array Array containing list of customers and pagination metadata
+     * @throws OnvoException
      */
     public function list(?array $params = []): array
     {
-        $response = $this->client->get('/customers', $params, true);
-        
-        $customers = [];
-        foreach ($response['data'] as $customerData) {
-            $customers[] = $this->mapResponseToCustomer($customerData);
+        try {
+            $response = $this->client->get('/customers', $params, true);
+            
+            $customers = [];
+            foreach ($response['data'] as $customerData) {
+                $customers[] = $this->mapResponseToCustomer($customerData);
+            }
+            
+            return [
+                'data' => $customers,
+                'hasMore' => $response['hasMore'] ?? false,
+                'totalCount' => $response['totalCount'] ?? count($customers),
+            ];
+        } catch (OnvoException $e) {
+            throw $e;
         }
-        
-        return [
-            'data' => $customers,
-            'hasMore' => $response['hasMore'] ?? false,
-            'totalCount' => $response['totalCount'] ?? count($customers),
-        ];
     }
 
     /**
@@ -56,12 +66,16 @@ class CustomersService
      *
      * @param string $id Customer ID
      * @return Customer
+     * @throws OnvoException
      */
     public function retrieve(string $id): Customer
     {
-        $response = $this->client->get("/customers/{$id}");
-        
-        return $this->mapResponseToCustomer($response);
+        try {
+            $response = $this->client->get("/customers/{$id}");
+            return $this->mapResponseToCustomer($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -70,12 +84,16 @@ class CustomersService
      * @param string $id Customer ID
      * @param array $data Customer update parameters
      * @return Customer
+     * @throws OnvoException
      */
     public function update(string $id, array $data): Customer
     {
-        $response = $this->client->post("/customers/{$id}", $data);
-        
-        return $this->mapResponseToCustomer($response);
+        try {
+            $response = $this->client->post("/customers/{$id}", $data);
+            return $this->mapResponseToCustomer($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -83,10 +101,15 @@ class CustomersService
      *
      * @param string $id Customer ID
      * @return array Deleted customer response
+     * @throws OnvoException
      */
     public function delete(string $id): array
     {
-        return $this->client->delete("/customers/{$id}");
+        try {
+            return $this->client->delete("/customers/{$id}");
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -95,21 +118,26 @@ class CustomersService
      * @param string $customerId Customer ID
      * @param array|null $params Optional parameters for filtering
      * @return array Array containing list of payment methods and pagination metadata
+     * @throws OnvoException
      */
     public function listPaymentMethods(string $customerId, ?array $params = []): array
     {
-        $response = $this->client->get("/customers/{$customerId}/payment-methods", $params, true);
-        
-        $paymentMethods = [];
-        foreach ($response['data'] as $paymentMethodData) {
-            $paymentMethods[] = $this->mapResponseToPaymentMethod($paymentMethodData);
+        try {
+            $response = $this->client->get("/customers/{$customerId}/payment-methods", $params, true);
+            
+            $paymentMethods = [];
+            foreach ($response['data'] as $paymentMethodData) {
+                $paymentMethods[] = $this->mapResponseToPaymentMethod($paymentMethodData);
+            }
+            
+            return [
+                'data' => $paymentMethods,
+                'hasMore' => $response['hasMore'] ?? false,
+                'totalCount' => $response['totalCount'] ?? count($paymentMethods),
+            ];
+        } catch (OnvoException $e) {
+            throw $e;
         }
-        
-        return [
-            'data' => $paymentMethods,
-            'hasMore' => $response['hasMore'] ?? false,
-            'totalCount' => $response['totalCount'] ?? count($paymentMethods),
-        ];
     }
 
     /**

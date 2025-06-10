@@ -4,6 +4,7 @@ namespace ONVO\Services;
 
 use ONVO\Http\Client;
 use ONVO\Models\PaymentMethod\PaymentMethod;
+use ONVO\Exceptions\OnvoException;
 
 class PaymentMethodsService
 {
@@ -19,12 +20,16 @@ class PaymentMethodsService
      *
      * @param array $data Payment method creation parameters
      * @return PaymentMethod
+     * @throws OnvoException
      */
     public function create(array $data): PaymentMethod
     {
-        $response = $this->client->post('/payment-methods', $data);
-        
-        return $this->mapResponseToPaymentMethod($response);
+        try {
+            $response = $this->client->post('/payment-methods', $data);
+            return $this->mapResponseToPaymentMethod($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -32,21 +37,26 @@ class PaymentMethodsService
      *
      * @param array|null $params Optional parameters for filtering
      * @return array Array containing list of payment methods and pagination metadata
+     * @throws OnvoException
      */
     public function list(?array $params = []): array
     {
-        $response = $this->client->get('/payment-methods', $params, true);
-        
-        $paymentMethods = [];
-        foreach ($response['data'] as $paymentMethodData) {
-            $paymentMethods[] = $this->mapResponseToPaymentMethod($paymentMethodData);
+        try {
+            $response = $this->client->get('/payment-methods', $params, true);
+            
+            $paymentMethods = [];
+            foreach ($response['data'] as $paymentMethodData) {
+                $paymentMethods[] = $this->mapResponseToPaymentMethod($paymentMethodData);
+            }
+            
+            return [
+                'data' => $paymentMethods,
+                'hasMore' => $response['hasMore'] ?? false,
+                'totalCount' => $response['totalCount'] ?? count($paymentMethods),
+            ];
+        } catch (OnvoException $e) {
+            throw $e;
         }
-        
-        return [
-            'data' => $paymentMethods,
-            'hasMore' => $response['hasMore'] ?? false,
-            'totalCount' => $response['totalCount'] ?? count($paymentMethods),
-        ];
     }
 
     /**
@@ -54,12 +64,16 @@ class PaymentMethodsService
      *
      * @param string $id Payment method ID
      * @return PaymentMethod
+     * @throws OnvoException
      */
     public function retrieve(string $id): PaymentMethod
     {
-        $response = $this->client->get("/payment-methods/{$id}");
-        
-        return $this->mapResponseToPaymentMethod($response);
+        try {
+            $response = $this->client->get("/payment-methods/{$id}");
+            return $this->mapResponseToPaymentMethod($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -68,12 +82,16 @@ class PaymentMethodsService
      * @param string $id Payment method ID
      * @param array $data Payment method update parameters
      * @return PaymentMethod
+     * @throws OnvoException
      */
     public function update(string $id, array $data): PaymentMethod
     {
-        $response = $this->client->post("/payment-methods/{$id}", $data);
-        
-        return $this->mapResponseToPaymentMethod($response);
+        try {
+            $response = $this->client->post("/payment-methods/{$id}", $data);
+            return $this->mapResponseToPaymentMethod($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -81,10 +99,15 @@ class PaymentMethodsService
      *
      * @param string $id Payment method ID
      * @return array Detached payment method response
+     * @throws OnvoException
      */
     public function detach(string $id): array
     {
-        return $this->client->post("/payment-methods/{$id}/detach");
+        try {
+            return $this->client->post("/payment-methods/{$id}/detach");
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**

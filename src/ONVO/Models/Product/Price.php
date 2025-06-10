@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Product;
+namespace ONVO\Models\Product;
 
 use DateTime;
 

@@ -4,6 +4,7 @@ namespace ONVO\Services;
 
 use ONVO\Http\Client;
 use ONVO\Models\Refund;
+use ONVO\Exceptions\OnvoException;
 
 class RefundsService
 {
@@ -19,12 +20,16 @@ class RefundsService
      *
      * @param array $data Refund creation parameters
      * @return Refund
+     * @throws OnvoException
      */
     public function create(array $data): Refund
     {
-        $response = $this->client->post('/refunds', $data);
-        
-        return $this->mapResponseToRefund($response);
+        try {
+            $response = $this->client->post('/refunds', $data);
+            return $this->mapResponseToRefund($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -32,12 +37,16 @@ class RefundsService
      *
      * @param string $id Refund ID
      * @return Refund
+     * @throws OnvoException
      */
     public function retrieve(string $id): Refund
     {
-        $response = $this->client->get("/refunds/{$id}");
-        
-        return $this->mapResponseToRefund($response);
+        try {
+            $response = $this->client->get("/refunds/{$id}");
+            return $this->mapResponseToRefund($response);
+        } catch (OnvoException $e) {
+            throw $e;
+        }
     }
 
     /**
