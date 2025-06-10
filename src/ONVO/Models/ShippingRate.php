@@ -16,9 +16,9 @@ class ShippingRate
     public ?DateTime $updatedAt;
 
     public function __construct(
-        int $amount,
-        string $currency,
-        string $displayName,
+        ?int $amount = null,
+        ?string $currency = '',
+        ?string $displayName = '',
         ?bool $isActive = true,
         ?DeliveryEstimate $deliveryEstimate = null,
         ?string $id = null,
@@ -33,6 +33,46 @@ class ShippingRate
         $this->isActive = $isActive;
         $this->deliveryEstimate = $deliveryEstimate;
         $this->updatedAt = $updatedAt;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+
+        if (isset($data['amount'])) {
+            $this->amount = $data['amount'];
+        }
+
+        if (isset($data['currency'])) {
+            $this->currency = $data['currency'];
+        }
+
+        if (isset($data['displayName'])) {
+            $this->displayName = $data['displayName'];
+        }
+
+        if (isset($data['isActive'])) {
+            $this->isActive = $data['isActive'];
+        }
+
+        if (isset($data['deliveryEstimate'])) {
+            $this->deliveryEstimate = new DeliveryEstimate(
+                $data['deliveryEstimate']['minimumUnit'],
+                $data['deliveryEstimate']['minimumValue'],
+                $data['deliveryEstimate']['maximumUnit'],
+                $data['deliveryEstimate']['maximumValue']
+            );
+        }
+
+        if (isset($data['updatedAt'])) {
+            $this->updatedAt = new DateTime($data['updatedAt']);
+        }
     }
 
     public function toJson(bool $newRate = false): string
@@ -104,15 +144,34 @@ class DeliveryEstimate
     public int $maximumValue;
 
     public function __construct(
-        string $minimumUnit,
-        int $minimumValue,
-        string $maximumUnit,
-        int $maximumValue
+        ?string $minimumUnit = '',
+        ?int $minimumValue = null,
+        ?string $maximumUnit = '',
+        ?int $maximumValue = null
     ) {
         $this->minimumUnit = $minimumUnit;
         $this->minimumValue = $minimumValue;
         $this->maximumUnit = $maximumUnit;
         $this->maximumValue = $maximumValue;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['minimumUnit'])) {
+            $this->minimumUnit = $data['minimumUnit'];
+        }
+
+        if (isset($data['minimumValue'])) {
+            $this->minimumValue = $data['minimumValue'];
+        }
+
+        if (isset($data['maximumUnit'])) {
+            $this->maximumUnit = $data['maximumUnit'];
+        }
+
+        if (isset($data['maximumValue'])) {
+            $this->maximumValue = $data['maximumValue'];
+        }
     }
 
     public function toArray(): array

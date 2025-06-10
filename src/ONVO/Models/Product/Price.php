@@ -19,11 +19,11 @@ class Price
     public ?DateTime $updatedAt;
 
     public function __construct(
-        int $unitAmount,
-        string $currency,
-        bool $isActive,
-        string $productId,
-        string $type,
+        ?int $unitAmount = null,
+        ?string $currency = '',
+        ?bool $isActive = null,
+        ?string $productId = null,
+        ?string $type = '',
         ?Recurring $recurring = null,
         ?string $nickname = null,
         ?string $id = null,
@@ -42,6 +42,43 @@ class Price
         $this->mode = $mode;
         $this->type = $type;
         $this->updatedAt = $updatedAt;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+        if (isset($data['unitAmount'])) {
+            $this->unitAmount = $data['unitAmount'];
+        }
+        if (isset($data['currency'])) {
+            $this->currency = $data['currency'];
+        }
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+        if (isset($data['nickname'])) {
+            $this->nickname = $data['nickname'];
+        }
+        if (isset($data['isActive'])) {
+            $this->isActive = $data['isActive'];
+        }
+        if (isset($data['productId'])) {
+            $this->productId = $data['productId'];
+        }
+        if (isset($data['recurring'])) {
+            $this->recurring = new Recurring($data['recurring']['interval'], $data['recurring']['intervalCount']);
+        }
+        if (isset($data['mode'])) {
+            $this->mode = $data['mode'];
+        }
+        if (isset($data['type'])) {
+            $this->type = $data['type'];
+        }
+        if (isset($data['updatedAt'])) {
+            $this->updatedAt = new DateTime($data['updatedAt']);
+        }
     }
     
     public function toJson(bool $newPrice = false): string
@@ -121,10 +158,20 @@ class Recurring
     public string $interval; // Ej: "day", "week", "month", "year"
     public int $intervalCount;
 
-    public function __construct(string $interval, int $intervalCount)
+    public function __construct(?string $interval = '', ?int $intervalCount = null)
     {
         $this->interval = $interval;
         $this->intervalCount = $intervalCount;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['interval'])) {
+            $this->interval = $data['interval'];
+        }
+        if (isset($data['intervalCount'])) {
+            $this->intervalCount = $data['intervalCount'];
+        }
     }
 
     public function toArray(): array

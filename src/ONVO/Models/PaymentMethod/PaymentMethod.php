@@ -19,11 +19,11 @@ class PaymentMethod
     public DateTime $updatedAt;
 
     public function __construct(
-        string $id = '',
+        ?string $id = '',
         ?DateTime $createdAt = null,
-        string $mode = '',
-        string $status = '',
-        string $type = '',
+        ?string $mode = '',
+        ?string $status = '',
+        ?string $type = '',
         ?DateTime $updatedAt = null,
         ?Billing $billing = null,
         ?Card $card = null,
@@ -42,6 +42,56 @@ class PaymentMethod
         $this->status = $status;
         $this->type = $type;
         $this->updatedAt = $updatedAt ?? new DateTime();
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+
+        if (isset($data['billing'])) {
+            $this->billing = new Billing();
+            $this->billing->setData($data['billing']);
+        }
+
+        if (isset($data['card'])) {
+            $this->card = new Card();
+            $this->card->setData($data['card']);
+        }
+
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+
+        if (isset($data['customerId'])) {
+            $this->customerId = $data['customerId'];
+        }
+        if (isset($data['mobileNumber'])) {
+            $this->mobileNumber = new MobileNumber();
+            $this->mobileNumber->setData($data['mobileNumber']);
+        }
+
+        if (isset($data['zunify'])) {
+            $this->zunify = new Zunify();
+            $this->zunify->setData($data['zunify']);
+        }
+
+        if (isset($data['mode'])) {
+            $this->mode = $data['mode'];
+        }
+
+        if (isset($data['status'])) {
+            $this->status = $data['status'];
+        }
+
+        if (isset($data['type'])) {
+            $this->type = $data['type'];
+        }
+
+        if (isset($data['updatedAt'])) {
+            $this->updatedAt = new DateTime($data['updatedAt']);
+        }
     }
 
     public function toUpdateJson(): string

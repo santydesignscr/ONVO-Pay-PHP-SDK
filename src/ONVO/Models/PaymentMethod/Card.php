@@ -11,10 +11,10 @@ class Card
     public ?string $cvv; // Nuevo campo para actualización
 
     public function __construct(
-        string $brand,
-        int $expMonth,
-        int $expYear,
-        string $last4,
+        ?string $brand = '',
+        ?int $expMonth = null,
+        ?int $expYear = null,
+        ?string $last4 = '',
         ?string $cvv = null
     ) {
         $this->brand = $brand;
@@ -22,6 +22,29 @@ class Card
         $this->expYear = $expYear;
         $this->last4 = $last4;
         $this->cvv = $cvv;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['brand'])) {
+            $this->brand = $data['brand'];
+        }
+
+        if (isset($data['expMonth'])) {
+            $this->expMonth = $data['expMonth'];
+        }
+
+        if (isset($data['expYear'])) {
+            $this->expYear = $data['expYear'];
+        }
+
+        if (isset($data['last4'])) {
+            $this->last4 = $data['last4'];
+        }
+
+        if (isset($data['cvv'])) {
+            $this->cvv = $data['cvv'];
+        }
     }
 
     public function toArray(): array

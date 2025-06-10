@@ -29,29 +29,146 @@ class RecurringCharge
     public ?Invoice $latestInvoice;
 
     public function __construct(
-        array $params = []
+        ?string $id = null,
+        ?string $billingCycleAnchor = null,
+        ?string $status = null,
+        ?string $cancelAt = null,
+        bool $cancelAtPeriodEnd = false,
+        ?string $canceledAt = null,
+        ?string $createdAt = null,
+        ?string $currentPeriodStart = null,
+        ?string $currentPeriodEnd = null,
+        ?string $customerId = null,
+        ?string $description = null,
+        ?string $paymentBehavior = null,
+        ?string $startDate = null,
+        ?string $paymentMethodId = null,
+        ?string $mode = null,
+        ?array $items = null,
+        ?int $trialPeriodDays = null,
+        ?string $trialStart = null,
+        ?string $trialEnd = null,
+        ?string $updatedAt = null,
+        ?Invoice $latestInvoice = null
     ) {
-        $this->id = $params['id'] ?? null;
-        $this->billingCycleAnchor = isset($params['billingCycleAnchor']) ? new DateTime($params['billingCycleAnchor']) : null;
-        $this->status = $params['status'] ?? null;
-        $this->cancelAt = isset($params['cancelAt']) ? new DateTime($params['cancelAt']) : null;
-        $this->cancelAtPeriodEnd = $params['cancelAtPeriodEnd'] ?? false;
-        $this->canceledAt = isset($params['canceledAt']) ? new DateTime($params['canceledAt']) : null;
-        $this->createdAt = isset($params['createdAt']) ? new DateTime($params['createdAt']) : null;
-        $this->currentPeriodStart = isset($params['currentPeriodStart']) ? new DateTime($params['currentPeriodStart']) : null;
-        $this->currentPeriodEnd = isset($params['currentPeriodEnd']) ? new DateTime($params['currentPeriodEnd']) : null;
-        $this->customerId = $params['customerId'] ?? null;
-        $this->description = $params['description'] ?? null;
-        $this->paymentBehavior = $params['paymentBehavior'] ?? null;
-        $this->startDate = isset($params['startDate']) ? new DateTime($params['startDate']) : null;
-        $this->paymentMethodId = $params['paymentMethodId'] ?? null;
-        $this->mode = $params['mode'] ?? null;
-        $this->items = isset($params['items'])? array_map(fn($i) => new RecurringItem($i['priceId'], $i['quantity']), $params['items']) : null;
-        $this->trialPeriodDays = $params['trialPeriodDays'] ?? null;
-        $this->trialStart = isset($params['trialStart']) ? new DateTime($params['trialStart']) : null;
-        $this->trialEnd = isset($params['trialEnd']) ? new DateTime($params['trialEnd']) : null;
-        $this->updatedAt = isset($params['updatedAt']) ? new DateTime($params['updatedAt']) : null;
-        $this->latestInvoice = isset($params['latestInvoice']) ? new Invoice($params['latestInvoice']) : null;
+        $this->id = $id;
+
+        $this->billingCycleAnchor = $billingCycleAnchor !== null ? new DateTime($billingCycleAnchor) : null;
+        $this->status = $status;
+        $this->cancelAt = $cancelAt !== null ? new DateTime($cancelAt) : null;
+        $this->cancelAtPeriodEnd = $cancelAtPeriodEnd;
+        $this->canceledAt = $canceledAt !== null ? new DateTime($canceledAt) : null;
+        $this->createdAt = $createdAt !== null ? new DateTime($createdAt) : null;
+        $this->currentPeriodStart = $currentPeriodStart !== null ? new DateTime($currentPeriodStart) : null;
+        $this->currentPeriodEnd = $currentPeriodEnd !== null ? new DateTime($currentPeriodEnd) : null;
+        $this->customerId = $customerId;
+        $this->description = $description;
+        $this->paymentBehavior = $paymentBehavior;
+        $this->startDate = $startDate !== null ? new DateTime($startDate) : null;
+        $this->paymentMethodId = $paymentMethodId;
+        $this->mode = $mode;
+
+        if ($items !== null) {
+            $this->items = array_map(function ($i) {
+                return new RecurringItem($i['priceId'], $i['quantity']);
+            }, $items);
+        } else {
+            $this->items = null;
+        }
+
+        $this->trialPeriodDays = $trialPeriodDays;
+        $this->trialStart = $trialStart !== null ? new DateTime($trialStart) : null;
+        $this->trialEnd = $trialEnd !== null ? new DateTime($trialEnd) : null;
+        $this->updatedAt = $updatedAt !== null ? new DateTime($updatedAt) : null;
+        $this->latestInvoice = $latestInvoice !== null ? $latestInvoice : null;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+        if (isset($data['billingCycleAnchor'])) {
+            $this->billingCycleAnchor = new DateTime($data['billingCycleAnchor']);
+        }
+
+        if (isset($data['status'])) {
+            $this->status = $data['status'];
+        }
+
+        if (isset($data['cancelAt'])) {
+            $this->cancelAt = new DateTime($data['cancelAt']);
+        }
+
+        if (isset($data['cancelAtPeriodEnd'])) {
+            $this->cancelAtPeriodEnd = $data['cancelAtPeriodEnd'];
+        }
+
+        if (isset($data['canceledAt'])) {
+            $this->canceledAt = new DateTime($data['canceledAt']);
+        }
+
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+
+        if (isset($data['currentPeriodStart'])) {
+            $this->currentPeriodStart = new DateTime($data['currentPeriodStart']);
+        }
+
+        if (isset($data['currentPeriodEnd'])) {
+            $this->currentPeriodEnd = new DateTime($data['currentPeriodEnd']);
+        }
+
+        if (isset($data['customerId'])) {
+            $this->customerId = $data['customerId'];
+        }
+
+        if (isset($data['description'])) {
+            $this->description = $data['description'];
+        }
+
+        if (isset($data['paymentBehavior'])) {
+            $this->paymentBehavior = $data['paymentBehavior'];
+        }
+
+        if (isset($data['startDate'])) {
+            $this->startDate = new DateTime($data['']);
+        }
+
+        if (isset($data['paymentMethodId'])) {
+            $this->paymentMethodId = $data['paymentMethodId'];
+        }
+
+        if (isset($data['mode'])) {
+            $this->mode = $data['mode'];
+        }
+
+        if (isset($data['items'])) {
+            $this->items = array_map(function ($i) {
+                return new RecurringItem($i['priceId'], $i['quantity']);
+            }, $data['items']);
+        }
+
+        if (isset($data['trialPeriodDays'])) {
+            $this->trialPeriodDays = $data['trialPeriodDays'];
+        }
+
+        if (isset($data['trialStart'])) {
+            $this->trialStart = new DateTime($data['trialStart']);
+        }
+
+        if (isset($data['trialEnd'])) {
+            $this->trialEnd = new DateTime($data['trialEnd']);
+        }
+        
+        if (isset($data['updatedAt'])) {
+            $this->updatedAt = new DateTime($data['updatedAt']);
+        }
+
+        if (isset($data['latestInvoice'])) {
+            $this->latestInvoice = new Invoice($data['latestInvoice']);
+        }
     }
 
     public function toJson(bool $newCharge = false): string

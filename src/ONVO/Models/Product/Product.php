@@ -18,9 +18,9 @@ class Product
     public ?DateTime $updatedAt;
 
     public function __construct(
-        string $name,
-        bool $isActive,
-        bool $isShippable,
+        ?string $name = null,
+        ?bool $isActive = null,
+        ?bool $isShippable = null,
         ?array $images = null,
         ?string $description = null,
         ?PackageDimensions $packageDimensions = null,
@@ -39,6 +39,41 @@ class Product
         $this->packageDimensions = $packageDimensions;
         $this->mode = $mode;
         $this->updatedAt = $updatedAt;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+        if (isset($data['description'])) {
+            $this->description = $data['description'];
+        }
+        if (isset($data['images'])) {
+            $this->images = $data['images'];
+        }
+        if (isset($data['isActive'])) {
+            $this->isActive = $data['isActive'];
+        }
+        if (isset($data['isShippable'])) {
+            $this->isShippable = $data['isShippable'];
+        }
+        if (isset($data['name'])) {
+            $this->name = $data['name'];
+        }
+        if (isset($data['packageDimensions'])) {
+            $this->packageDimensions = new PackageDimensions();
+            $this->packageDimensions->setData($data['packageDimensions']);
+        }
+        if (isset($data['mode'])) {
+            $this->mode = $data['mode'];
+        }
+        if (isset($data['updatedAt'])) {
+            $this->updatedAt = new DateTime($data['updatedAt']);
+        }
     }
 
     public function toJson(bool $newProduct = false): string
@@ -117,12 +152,36 @@ class PackageDimensions
     public float $height;
     public float $weight; // en gramos
 
-    public function __construct(float $length, float $width, float $height, float $weight)
+    public function __construct(
+        ?float $length = null,
+        ?float $width = null,
+        ?float $height = null,
+        ?float $weight = null
+    )
     {
         $this->length = $length;
         $this->width = $width;
         $this->height = $height;
         $this->weight = $weight;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['length'])) {
+            $this->length = $data['length'];
+        }
+
+        if (isset($data['width'])) {
+            $this->width = $data['width'];
+        }
+
+        if (isset($data['height'])) {
+            $this->height = $data['height'];
+        }
+
+        if (isset($data['weight'])) {
+            $this->weight = $data['weight'];
+        }
     }
 
     public function toArray(): array

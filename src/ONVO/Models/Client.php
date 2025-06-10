@@ -50,6 +50,62 @@ class Client
         $this->updatedAt = $updatedAt;
     }
 
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+
+        if (isset($data['address'])) {
+            $this->address = new Address();
+            $this->address->setData($data['address']);
+        }
+
+        if (isset($data['amountSpent'])) {
+            $this->amountSpent = $data['amountSpent'];
+        }
+        
+        if (isset($data['description'])) {
+            $this->description = $data['description'];
+        }
+
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+
+        if (isset($data['email'])) {
+            $this->email = $data['email'];
+        }
+
+        if (isset($data['lastTransactionAt'])) {
+            $this->lastTransactionAt = new DateTime($data['lastTransactionAt']);
+        }
+
+        if (isset($data['mode'])) {
+            $this->mode = $data['mode'];
+        }
+
+        if (isset($data['name'])) {
+            $this->name = $data['name'];
+        }
+
+        if (isset($data['phone'])) {
+            $this->phone = $data['phone'];
+        }
+
+        if (isset($data['shipping'])) {
+            $this->shipping = new Shipping();
+            $this->shipping->setData($data['shipping']);
+        }
+
+        if (isset($data['transactionsCount'])) {
+            $this->transactionsCount = $data['transactionsCount'];
+        }
+        if (isset($data['updatedAt'])) {
+            $this->updatedAt = new DateTime($data['updatedAt']);
+        }
+    }
+
     public function toUpdateJson(): string
     {
         return json_encode($this->toUpdateArray());

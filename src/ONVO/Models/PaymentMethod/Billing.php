@@ -15,8 +15,8 @@ class Billing
     public ?string $idNumber;
 
     public function __construct(
-        Address $address,
-        string $name,
+        ?Address $address = null,
+        ?string $name = '',
         ?string $phone = null,
         ?string $email = null,
         ?string $idType = null,
@@ -28,6 +28,22 @@ class Billing
         $this->email = $email;
         $this->idType = $idType;
         $this->idNumber = $idNumber;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['address'])) {
+            $this->address = new Address();
+            $this->address->setData($data['address']);
+        }
+
+        if (isset($data['name'])) {
+            $this->name = $data['name'];
+        }
+
+        if (isset($data['phone'])) {
+            $this->phone = $data['phone'];
+        }
     }
 
     public function toArray(): array

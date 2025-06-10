@@ -153,7 +153,10 @@ class SubscriptionsService
     private function mapResponseToRecurringCharge(array $data): RecurringCharge
     {
         // Crear y retornar el objeto RecurringCharge
-        return new RecurringCharge($data);
+        $recurringCharge = new RecurringCharge();
+        $recurringCharge->setData($data);
+        
+        return $recurringCharge;
     }
 
     /**

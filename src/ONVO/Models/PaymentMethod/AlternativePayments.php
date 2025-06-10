@@ -10,7 +10,7 @@ class MobileNumber
     public ?string $number;
 
     public function __construct(
-        string $maskedNumber = '',
+        ?string $maskedNumber = '',
         ?string $identification = null,
         ?int $identificationType = null,
         ?string $number = null
@@ -19,6 +19,25 @@ class MobileNumber
         $this->identification = $identification;
         $this->identificationType = $identificationType;
         $this->number = $number;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['maskedNumber'])) {
+            $this->maskedNumber = $data['maskedNumber'];
+        }
+
+        if (isset($data['identification'])) {
+            $this->identification = $data['identification'];
+        }
+
+        if (isset($data['identificationType'])) {
+            $this->identificationType = $data['identificationType'];
+        }
+
+        if (isset($data['number'])) {
+            $this->number = $data['number'];
+        }
     }
 
     public function toArray(): array
@@ -50,11 +69,22 @@ class Zunify
     public string $phoneNumber;
 
     public function __construct(
-        string $pin,
-        string $phoneNumber
+        ?string $pin = null,
+        ?string $phoneNumber = null
     ) {
         $this->pin = $pin;
         $this->phoneNumber = $phoneNumber;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['pin'])) {
+            $this->pin = $data['pin'];
+        }
+
+        if (isset($data['phoneNumber'])) {
+            $this->phoneNumber = $data['phoneNumber'];
+        }
     }
 
     public function toArray(): array

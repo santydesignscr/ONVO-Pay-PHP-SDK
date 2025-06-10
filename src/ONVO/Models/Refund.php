@@ -19,8 +19,8 @@ class Refund
     public ?string $failureReason;
 
     public function __construct(
-        string $id,
-        string $paymentIntentId,
+        ?string $id = null,
+        ?string $paymentIntentId = '',
         ?int $amount = null,
         ?string $currency = null,
         ?DateTime $createdAt = null,
@@ -42,6 +42,53 @@ class Refund
         $this->reason = $reason;
         $this->updatedAt = $updatedAt;
         $this->failureReason = $failureReason;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+
+        if (isset($data['amount'])) {
+            $this->amount = $data['amount'];
+        }
+
+        if (isset($data['currency'])) {
+            $this->currency = $data['currency'];
+        }
+
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+
+        if (isset($data['paymentIntentId'])) {
+            $this->paymentIntentId = $data['paymentIntentId'];
+        }
+
+        if (isset($data['description'])) {
+            $this->description = $data['description'];
+        }
+
+        if (isset($data['mode'])) {
+            $this->mode = $data['mode'];
+        }
+
+        if (isset($data['status'])) {
+            $this->status = $data['status'];
+        }
+
+        if (isset($data['reason'])) {
+            $this->reason = $data['reason'];
+        }
+
+        if (isset($data['updatedAt'])) {
+            $this->updatedAt = new DateTime($data['updatedAt']);
+        }
+
+        if (isset($data['failureReason'])) {
+            $this->failureReason = $data['failureReason'];
+        }
     }
 
     public function toArray($newRefund): array

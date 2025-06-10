@@ -72,6 +72,89 @@ class PaymentIntent
         $this->nextAction = $nextAction;
     }
 
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+
+        if (isset($data['amount'])) {
+            $this->amount = $data['amount'];
+        }
+
+        if (isset($data['baseAmount'])) {
+            $this->baseAmount = $data['baseAmount'];
+        }
+
+        if (isset($data['exchangeRate'])) {
+            $this->exchangeRate = $data['exchangeRate'];
+        }
+
+        if (isset($data['capturableAmount'])) {
+            $this->capturableAmount = $data['capturableAmount'];
+        }
+
+        if (isset($data['receivedAmount'])) {
+            $this->receivedAmount = $data['receivedAmount'];
+        }
+
+        if (isset($data['captureMethod'])) {
+            $this->captureMethod = $data['captureMethod'];
+        }
+
+        if (isset($data['currency'])) {
+            $this->currency = $data['currency'];
+        }
+
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+
+        if (isset($data['customerId'])) {
+            $this->customerId = $data['customerId'];
+        }
+
+        if (isset($data['description'])) {
+            $this->description = $data['description'];
+        }
+
+        if (isset($data['charges'])) {
+            $this->charges = array_map(fn($c) => (new Charge())->setData($c), $data['charges']);
+        }
+
+        if (isset($data['lastPaymentError'])) {
+            $this->lastPaymentError = (new PaymentError())->setData($data['lastPaymentError']);
+        }
+
+        if (isset($data['mode'])) {
+            $this->mode = $data['mode'];
+        }
+
+        if (isset($data['status'])) {
+            $this->status = $data['status'];
+        }
+
+        if (isset($data['updatedAt'])) {
+            $this->updatedAt = new DateTime($data['updatedAt']);
+        }
+
+        if (isset($data['metadata'])) {
+            $this->metadata = $data['metadata'];
+        }
+
+        if (isset($data['officeId'])) {
+            $this->officeId = $data['officeId'];
+        }
+
+        if (isset($data['onBehalfOf'])) {
+            $this->onBehalfOf = $data['onBehalfOf'];
+        }
+
+        if (isset($data['nextAction'])) {
+            $this->nextAction = (new NextAction())->setData($data['nextAction']);
+        }
+    }
+
     public function toJson(bool $newIntent = false): string
     {
         return json_encode($this->toArray($newIntent));
@@ -174,6 +257,29 @@ class Charge
         $this->createdAt = $createdAt;
     }
 
+    public function setData(array $data)
+    {
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
+
+        if (isset($data['amount'])) {
+            $this->amount = $data['amount'];
+        }
+
+        if (isset($data['currency'])) {
+            $this->currency = $data['currency'];
+        }
+
+        if (isset($data['status'])) {
+            $this->status = $data['status'];
+        }
+
+        if (isset($data['createdAt'])) {
+            $this->createdAt = new DateTime($data['createdAt']);
+        }
+    }
+
     public function toArray(): array
     {
         return [
@@ -202,6 +308,21 @@ class PaymentError
         $this->type = $type;
     }
 
+    public function setData(array $data)
+    {
+        if (isset($data['code'])) {
+            $this->code = $data['code'];
+        }
+
+        if (isset($data['message'])) {
+            $this->message = $data['message'];
+        }
+
+        if (isset($data['type'])) {
+            $this->type = $data['type'];
+        }
+    }
+
     public function toArray(): array
     {
         return [
@@ -225,6 +346,17 @@ class RedirectToUrl
         $this->returnUrl = $returnUrl;
     }
 
+    public function setData(array $data)
+    {
+        if (isset($data['url'])) {
+            $this->url = $data['url'];
+        }
+
+        if (isset($data['returnUrl'])) {
+            $this->returnUrl = $data['returnUrl'];
+        }
+    }
+
     public function toArray(): array
     {
         return [
@@ -245,6 +377,17 @@ class NextAction
     ) {
         $this->type = $type;
         $this->redirectToUrl = $redirectToUrl;
+    }
+
+    public function setData(array $data)
+    {
+        if (isset($data['type'])) {
+            $this->type = $data['type'];
+        }
+
+        if (isset($data['redirectToUrl'])) {
+            $this->redirectToUrl = (new RedirectToUrl())->setData($data['redirectToUrl']);
+        }
     }
 
     public function toArray(): array
