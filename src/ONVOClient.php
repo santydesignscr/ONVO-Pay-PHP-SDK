@@ -66,6 +66,63 @@ class ONVOClient
     private ?WebhookService $webhook = null;
     
     /**
+     * Mapping of model short names to their fully qualified class names
+     * 
+     * @var array<string, string>
+     */
+    private array $modelMap = [
+        // Modelos principales
+        'address' => \ONVO\Models\Address::class,
+        'checkoutSession' => \ONVO\Models\CheckoutSession::class,
+        'client' => \ONVO\Models\Client::class,
+        'customer' => \ONVO\Models\Client::class, // Alias para Client
+        'paymentIntent' => \ONVO\Models\PaymentIntent::class,
+        'recurringCharge' => \ONVO\Models\RecurringCharge::class,
+        'refund' => \ONVO\Models\Refund::class,
+        'shipping' => \ONVO\Models\Shipping::class,
+        'shippingRate' => \ONVO\Models\ShippingRate::class,
+        
+        // Modelos anidados en PaymentIntent.php
+        'charge' => \ONVO\Models\Charge::class,
+        'paymentError' => \ONVO\Models\PaymentError::class,
+        'nextAction' => \ONVO\Models\NextAction::class,
+        'redirectToUrl' => \ONVO\Models\RedirectToUrl::class,
+        
+        // Modelos en PaymentMethod
+        'paymentMethod' => \ONVO\Models\PaymentMethod\PaymentMethod::class,
+        'card' => \ONVO\Models\PaymentMethod\Card::class,
+        'billing' => \ONVO\Models\PaymentMethod\Billing::class,
+        'mobileNumber' => \ONVO\Models\PaymentMethod\MobileNumber::class,
+        'zunify' => \ONVO\Models\PaymentMethod\Zunify::class,
+        
+        // Modelos en Product
+        'product' => \ONVO\Models\Product\Product::class,
+        'packageDimensions' => \ONVO\Models\Product\PackageDimensions::class,
+        'price' => \ONVO\Models\Product\Price::class,
+        'recurring' => \ONVO\Models\Product\Recurring::class,
+        
+        // Modelos en RecurringCharge.php
+        'recurringItem' => \ONVO\Models\RecurringItem::class,
+        'invoice' => \ONVO\Models\Invoice::class,
+        'invoiceAdditionalItem' => \ONVO\Models\InvoiceAdditionalItem::class,
+        
+        // Modelos de eventos
+        'baseEvent' => \ONVO\Models\Events\BaseEvent::class,
+        'paymentIntentSucceededEvent' => \ONVO\Models\Events\PaymentIntentSucceededEvent::class,
+        'paymentIntentFailedEvent' => \ONVO\Models\Events\PaymentIntentFailedEvent::class,
+        'paymentIntentDeferredEvent' => \ONVO\Models\Events\PaymentIntentDeferredEvent::class,
+        'subscriptionRenewalSucceededEvent' => \ONVO\Models\Events\SubscriptionRenewalSucceededEvent::class,
+        'subscriptionRenewalFailedEvent' => \ONVO\Models\Events\SubscriptionRenewalFailedEvent::class,
+        'checkoutSessionSucceededEvent' => \ONVO\Models\Events\CheckoutSessionSucceededEvent::class,
+        'mobileTransferReceivedEvent' => \ONVO\Models\Events\MobileTransferReceivedEvent::class,
+        
+        // Modelos de valor en Events
+        'eventCustomer' => \ONVO\Models\Events\Value\Customer::class,
+        'metadata' => \ONVO\Models\Events\Value\Metadata::class,
+        'errorDetail' => \ONVO\Models\Events\Value\ErrorDetail::class,
+    ];
+    
+    /**
      * Initialize the ONVO Pay SDK client
      *
      * @param string $apiKey Your ONVO Pay API key
@@ -76,6 +133,29 @@ class ONVOClient
         $this->httpClient = new Client($apiKey, $baseUrl);
     }
 
+    /**
+     * Instantiate a model by its short name
+     *
+     * @param string $modelName Short name of the model (e.g., 'address', 'paymentIntent', 'card')
+     * @return object Instance of the requested model
+     * @throws \InvalidArgumentException If the model name is not recognized
+     */
+    public function model(string $modelName)
+    {
+        // Convertir a camelCase para normalizar el nombre del modelo
+        $modelName = lcfirst($modelName);
+        
+        if (!isset($this->modelMap[$modelName])) {
+            $availableModels = implode(', ', array_keys($this->modelMap));
+            throw new \InvalidArgumentException(
+                "Model '$modelName' not found. Available models: $availableModels"
+            );
+        }
+        
+        $className = $this->modelMap[$modelName];
+        return new $className();
+    }
+    
     /**
      * Get the webhook service
      *
